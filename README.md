@@ -1,4 +1,4 @@
-[![Continuous Integration](https://github.com/AlcidesRC/dockerized-php-supervisor/actions/workflows/ci.yml/badge.svg)](https://github.com/AlcidesRC/dockerized-php-supervisor/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/AlcidesRC/dockerized-php-caddy/actions/workflows/ci.yml/badge.svg)](https://github.com/AlcidesRC/dockerized-php-caddy/actions/workflows/ci.yml)
 
 # Dockerized PHP - Caddy
 
