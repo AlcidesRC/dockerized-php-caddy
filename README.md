@@ -26,10 +26,10 @@ This repository contains a _dockerized_ environment for building PHP application
 
 ### Infrastructure
 
-| Docker Infrastructure | Value |
-| --------------------- | ----- |
-| Containers            | 1     |
-| Services              | 1     |
+| Docker Infrastructure | Value | Size  |
+| --------------------- | ----- | ----- |
+| Containers            | 1     | 201Mb |
+| Services              | 1     | N/A   |
 
 
 
