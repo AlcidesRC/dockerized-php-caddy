@@ -1,12 +1,10 @@
 services:
-    app1:
+    custom-caddy:
         extends:
             file: docker-compose.yml
-            service: app1
+            service: custom-caddy
         build:
             context: .
             dockerfile: Dockerfile
             target: build-production
         image: dockerized-php-caddy:prod
-        environment:
-            - PHP_FPM_GATEWAYS=app1:9000
