@@ -11,16 +11,28 @@
 	}
 }
 
-website.localhost {
+(common) {
+	encode zstd gzip
+    file_server
+}
+
+(ssl) {
     tls internal
+}
+
+{$HOSTNAME} {
+    import common
+    import ssl
 
     respond /healthcheck 200
 
     root * /var/www/html/public
 
-    encode zstd gzip
+    php_fastcgi {$PHP_FPM_GATEWAYS} {
+        index index.php
 
-    php_fastcgi :9000
+        resolve_root_symlink
 
-    file_server
+        lb_policy round_robin
+    }
 }

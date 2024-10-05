@@ -1,0 +1,12 @@
+services:
+    app1:
+        extends:
+            file: docker-compose.yml
+            service: app1
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: build-production
+        image: dockerized-php-caddy:prod
+        environment:
+            - PHP_FPM_GATEWAYS=app1:9000

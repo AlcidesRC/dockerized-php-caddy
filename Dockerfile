@@ -4,7 +4,7 @@
 # STAGE: BASE-IMAGE
 #----------------------------------------------------------
 
-FROM php:8.3.10-fpm-alpine AS base-image
+FROM php:8.3.12-fpm-alpine AS base-image
 
 #----------------------------------------------------------
 # STAGE: CADDY-BUILDER
@@ -25,12 +25,13 @@ FROM base-image AS common
 RUN apk update && apk add --no-cache \
         caddy \
         fcgi \
+        libzip \
         nss-tools
 
 # Add a custom HEALTHCHECK script
 # Ensure the `healthcheck.sh` can be executed inside the container
 COPY --chmod=777 build/healthcheck.sh /healthcheck.sh
-HEALTHCHECK --interval=10s --timeout=1s --retries=3 CMD /healthcheck.sh
+HEALTHCHECK --interval=30s --timeout=1s --retries=3 --start-period=10s --start-interval=2s CMD /healthcheck.sh
 
 WORKDIR /var/www/html
 
@@ -51,7 +52,7 @@ FROM base-image AS extensions-builder-common
 
 # Add, compile and configure PHP extensions
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-        apcu
+        zip
 
 #----------------------------------------------------------
 # STAGE: EXTENSIONS-BUILDER-DEV
@@ -96,7 +97,6 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Add OS dependencies related with development
 RUN apk update && apk add --no-cache \
-        bash \
         git \
         make \
         ncurses \
