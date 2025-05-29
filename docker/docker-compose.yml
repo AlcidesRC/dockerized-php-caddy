@@ -1,0 +1,29 @@
+volumes:
+    caddy_data:
+    caddy_config:
+
+services:
+    caddy:
+        container_name: caddy
+        restart: unless-stopped
+        tty: true
+        environment:
+            - CADDY_TLS=internal
+            - CADDY_HOSTNAME=https://localhost
+            - CADDY_PHPFPM_GATEWAYS=:9000
+        volumes:
+            - caddy_data:/data
+            - caddy_config:/config
+            - ./caddy/snippets:/etc/caddy/snippets:ro
+            - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+        ports:
+            - 80:80
+            - 443:443
+            - 443:443/udp
+        healthcheck:
+            test: ["CMD", "wget", "--no-check-certificate", "--spider", "https://localhost/healthcheck"]
+            interval: 30s
+            timeout: 1s
+            retries: 3
+            start_period: 10s
+            #start_interval: 2s

@@ -1,0 +1,10 @@
+services:
+    caddy:
+        extends:
+            file: docker-compose.yml
+            service: caddy
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+            target: build-production
+        image: dockerized-php-caddy:prod
