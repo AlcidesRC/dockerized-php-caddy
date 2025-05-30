@@ -4,7 +4,7 @@ services:
             file: docker-compose.yml
             service: caddy
         build:
-            context: ..
-            dockerfile: docker/Dockerfile
+            context: ../..
+            dockerfile: docker/app/Dockerfile
             target: build-production
         image: dockerized-php-caddy:prod

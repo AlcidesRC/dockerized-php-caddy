@@ -7,9 +7,9 @@ set title "Apache Benchmark - Endpoint [ / ]" font 'Noto Sans Mono:style=Bold,14
 set xlabel "Request" font 'Noto Sans Mono:style=Regular,10'
 set ylabel "Response Time (ms)" font 'Noto Sans Mono:style=Regular,10'
 
-set output "homepage/chart.png"
+set output "chart.png"
 
 ## Single metric
-plot "homepage/gplot.1000.data" using 10 smooth sbezier with lines title "Requests [ 1000 ] - Concurrency [ 100 ]"
+plot "gplot.1000.data" using 10 smooth sbezier with lines title "Requests [ 1000 ] - Concurrency [ 100 ]"
 
 exit

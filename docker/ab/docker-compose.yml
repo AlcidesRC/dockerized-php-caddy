@@ -1,0 +1,13 @@
+services:
+    ab:
+        container_name: ab
+        build:
+            context: ../..
+            dockerfile: docker/ab/Dockerfile
+            target: build
+        restart: unless-stopped
+        tty: true
+        extra_hosts:
+            - localhost:${WEBSERVER_IPADDRESS}
+        volumes:
+            - ../../ab-endpoints:/endpoints

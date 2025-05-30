@@ -8,15 +8,15 @@
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.21-fpm-alpine3.20** using **caddy:2.10.0-builder-alpine** and Apache Benchmark.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.4.7-fpm-alpine3.21** using **caddy:2.10.0-builder-alpine** and **Apache Benchmark**.
 
 ### Highlights
 
 - Unified environment to build <abbr title="Command Line Interface">CLI</abbr>, <u>web applications</u> and/or <u>micro-services</u> based on **PHP8**.
 - Multi-stage Dockerfile to allows you to create an optimized **development** or **production-ready** Docker images
 - Uses **Caddy webserver**.
-- PHP-FPM is **managed by Caddy**.
-- **Everything in one single Docker service**.
+- PHP-FPM is **managed internally by Caddy**.
+- **Application and web server is in one single container**.
 - Includes **Apache Benchmark** for stress testing.
 
 ------
@@ -62,7 +62,7 @@ $ git clone git@github.com:AlcidesRC/dockerized-php-caddy.git .
 
 #### Dockerfile
 
-`Dockerfile` is based on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/) in order to simplify the process to generate the **development container image** and the optimized **production-ready container image**.
+`docker/app/Dockerfile` is based on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/) in order to simplify the process to generate the **development container image** and the optimized **production-ready container image**.
 
 ##### Defined Stages
 
@@ -103,7 +103,7 @@ stateDiagram-v2
 
 A custom health check script is provided to check the container service by performing the default `PHP-FPM` `ping/pong` check.
 
-You can find this shell script at `build/healthcheck.sh`.
+You can find this shell script at `build/app/healthcheck.sh`.
 
 > [!NOTE]
 >
@@ -130,11 +130,11 @@ To create this user in the container service, current host user details are coll
 
 > [!NOTE]
 >
-> Review the `Makefile` and `Dockerfile` files and adjust the arguments to your convenience.
+> Review the `Makefile` and `docker/app/Dockerfile` files and adjust the arguments to your convenience.
 
 > [!IMPORTANT]
 >
-> Remember to rebuild the Docker image if you make any change on `Dockerfile` file.
+> Remember to rebuild the Docker image if you make any change on `docker/app/Dockerfile` file.
 
 #### Logging
 
@@ -144,23 +144,31 @@ The container service logs to `STDOUT` by default.
 
 ```text
 .
-├── caddy-root-ca-authority.crt
+├── ab-endpoints                               # Apache Benchmark endpoints to be tested
+│   ├── homepage                               # Endpoint to be tested
+│   │   ├── config                             # Endpoint definitions
+│   │   └── runner.sh                          # Apache Benchmark runner script
+│   └── post                                   # Endpoint definitions
+│       ├── config                             # Endpoint definitions
+│       └── runner.sh                          # Apache Benchmark runner script
 ├── docker
-│   ├── apache-benchmark
-│   ├── caddy                                  # Folder with Caddy's configuration file(s)
-│   ├── docker-compose.apache-benchmark.yml    # Docker compose file for Apache Benchmark container
-│   ├── docker-compose.override.dev.yml        # Docker Compose file for development environment
-│   ├── docker-compose.override.prod.yml       # Docker Compose file for production environment
-│   ├── docker-compose.yml                     # Base Docker Compose file
-│   ├── Dockerfile                             # Dockerfile to build the PHP-FPM image
-│   ├── entrypoint.sh                          # Entrypoint script which allows to customize the xDebug config file
-│   ├── healthcheck.sh                         # Healthcheck script
-│   └── php-fpm                                # Folder with PHP-FPM's configuration file(s)
+│   ├── ab                                     # Apache Benchmark Docker related stuff
+│   │   ├── docker-compose.yml                 # Service Docker Compose file
+│   │   └── Dockerfile                         # Service Dockerfile
+│   └── app                                    # Application Docker related stuff
+│       ├── caddy                              # Caddy related stuff
+│       ├── docker-compose.override.dev.yml    # Docker compose file for development environment
+│       ├── docker-compose.override.prod.yml   # Docker compose file for production environment
+│       ├── docker-compose.yml                 # Service Docker Compose file
+│       ├── Dockerfile                         # Service Dockerfile
+│       ├── entrypoint.sh                      # Service entrypoint script 
+│       ├── healthcheck.sh                     # Service healthcheck script
+│       └── php-fpm                            # PHP-FPM related stuff
 ├── LICENSE
 ├── Makefile
 ├── README-CADDY.md
 ├── README.md
-└── src                                        # PHP application folder
+└── src                                        # Application folder
 ```
 
 ##### Volumes
@@ -173,11 +181,11 @@ There is a **bind volume** created between the *host* and the container service:
 
 > [!NOTE]
 >
-> Review the `docker-compose.dev.yml` files and adjust the volumes to your convenience.
+> Review the `docker/app/docker-compose.dev.yml` files and adjust the volumes to your convenience.
 
 > [!IMPORTANT]
 >
-> Remember to rebuild the Docker image if you make any change on `Dockerfile` file.
+> Remember to rebuild the Docker image if you make any change on `docker/app/Dockerfile` file.
 
 ##### Available Commands
 
@@ -214,7 +222,7 @@ Choose a command...
   composer-require-dev      
   install-caddy-certificate 
                             
-  ••
+  ••                        
 ←↓↑→ navigate • enter submit
 ```
 
@@ -232,9 +240,9 @@ The default website domain is https://localhost
 
 > [!TIP]
 >
-> You can customize the domain name in `docker-compose.override.xxx.yml`
+> You can customize the domain name in `docker/app/docker-compose.override.xxx.yml`
 >
-> Review as well the `.env` to ensure `WEBSITE_URL` constant has the desired domain name for development environment.
+> Review as well the application `.env` to ensure `WEBSITE_URL` constant has the desired domain name for development environment.
 
 > [!IMPORTANT]
 >
@@ -258,7 +266,7 @@ PHP application must be placed into `src` folder.
 
 > [!TIP]
 >
-> There are some `Makefile` commands that allows you to install a [PHP Skeleton](https://github.com/alcidesrc/php-skeleton) as boilerplate, [Laravel](https://github.com/laravel/laravel) or [Symfony](https://symfony.com/) when creating `PHP` applications from scratch.
+> There are some `Makefile` commands that allows you to install a [PHP Skeleton](https://github.com/alcidesrc/php-skeleton) as boilerplate, [Laravel](https://github.com/laravel/laravel), [Symfony](https://symfony.com/) or [Lumen](https://lumen.laravel.com/) when creating `PHP` applications from scratch.
 
 ### Development
 
@@ -278,7 +286,7 @@ $ make set-environment
 ╚════════════════════════════════════════════════════════════════════════════════╝
 🔹 ENVIRONMENT ... dev                                                         
 🔹 DOMAIN URL .... https://localhost                                            
-🔹 SERVICE(S) .... caddy app1                                                   
+🔹 SERVICE(S) .... caddy                                                   
 🔹 USER .......... (1000) alcidesramos                                          
 🔹 GROUP ......... (1000) alcidesramos                                          
 
@@ -351,7 +359,7 @@ $ make set-environment
 ╚════════════════════════════════════════════════════════════════════════════════╝
 🔹 ENVIRONMENT ... dev                                                         
 🔹 DOMAIN URL .... https://localhost                                            
-🔹 SERVICE(S) .... caddy app1                                                   
+🔹 SERVICE(S) .... caddy                                                   
 🔹 USER .......... (1000) alcidesramos                                          
 🔹 GROUP ......... (1000) alcidesramos                                          
 
@@ -429,19 +437,23 @@ $ make test-stress
 
 ##### Customizing endpoints
 
-Endpoints are defined at `docker/apache-benchmark/endpoints` as folders. 
+Endpoints are defined in `ab-endpoints` as folders. 
 
 Each folder contains:
 
-| File           | Required? | Description                                                           |
-|----------------|-----------|-----------------------------------------------------------------------|
-| `gplot.p`      | Yes       | GnuPlot required config file to create the chart                      |
-| `runner.sh`    | Yes       | Bash script with the execution steps                                  |
-| `payload.json` | No        | Payload in `JSON` with the payload to be sent to the desired endpoint |
+```bash
+.
+├── chart.png              # Generated GNU Plot chart
+├── config                 # Endpoint definitions
+│   ├── gplot.p            # GNU Plot config file
+│   └── payload.json       # Endpoint payload to be sent (if required)
+├── gplot.XXXX.data        # Generated Apache Benchmarks metrics
+└── runner.sh              # Runner script
+```
 
 > [!IMPORTANT]
 >
-> Keep in mind generated data files and also the chart will be stored in the same folder.
+> Pay attention that generated `gplot.XXXX.data` and `chart.png` will be stored in the same folder.
 
 #### Examples
 
@@ -454,11 +466,12 @@ Each folder contains:
 
 set -e
 
-ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -n 1000 -c 100 -g ./homepage/gplot.1000.data http://localhost/
-gnuplot ./homepage/gplot.p
+ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -n 1000 -c 100 -g gplot.1000.data http://localhost/
+
+gnuplot ./config/gplot.p
 ```
 
-###### gplot.p
+###### config/gplot.p
 
 ```bash
 set terminal png size 1024,768
@@ -470,17 +483,17 @@ set title "Apache Benchmark - Endpoint [ / ]" font 'Noto Sans Mono:style=Bold,14
 set xlabel "Request" font 'Noto Sans Mono:style=Regular,10'
 set ylabel "Response Time (ms)" font 'Noto Sans Mono:style=Regular,10'
 
-set output "homepage/chart.png"
+set output "chart.png"
 
 ## Single metric
-plot "homepage/gplot.1000.data" using 10 smooth sbezier with lines title "Requests [ 1000 ] - Concurrency [ 100 ]"
+plot "gplot.1000.data" using 10 smooth sbezier with lines title "Requests [ 1000 ] - Concurrency [ 100 ]"
 
 exit
 ```
 
 ###### Chart
 
-![apache-benchmark-endpoints-homepage](README/apache-benchmark/homepage.png)
+![apache-benchmark-endpoints-homepage](.README/apache-benchmark/homepage.png)
 
 ##### Post
 
@@ -491,14 +504,15 @@ exit
 
 set -e
 
-ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./post/payload.json -n 1000 -c 100 -g ./post/gplot.1000.data http://localhost/post
-ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./post/payload.json -n 2000 -c 200 -g ./post/gplot.2000.data http://localhost/post
-ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./post/payload.json -n 3000 -c 300 -g ./post/gplot.3000.data http://localhost/post
-ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./post/payload.json -n 5000 -c 500 -g ./post/gplot.5000.data http://localhost/post
-gnuplot ./post/gplot.p
+ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./config/payload.json -n 1000 -c 100 -g gplot.1000.data http://localhost/post
+ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./config/payload.json -n 2000 -c 200 -g gplot.2000.data http://localhost/post
+ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./config/payload.json -n 3000 -c 300 -g gplot.3000.data http://localhost/post
+ab -k -f ALL -H 'Accept-Encoding: gzip, deflate, br' -H 'Accept: */*' -s 30 -p ./config/payload.json -n 5000 -c 500 -g gplot.5000.data http://localhost/post
+
+gnuplot ./config/gplot.p
 ```
 
-###### gplot.p
+###### config/gplot.p
 
 ```bash
 set terminal png size 1024,768
@@ -510,18 +524,18 @@ set title "Apache Benchmark - Endpoint [ /post ]" font 'Noto Sans Mono:style=Bol
 set xlabel "Request" font 'Noto Sans Mono:style=Regular,10'
 set ylabel "Response Time (ms)" font 'Noto Sans Mono:style=Regular,10'
 
-set output "post/chart.png"
+set output "chart.png"
 
 ## Multiple metrics
-plot "post/gplot.1000.data" using 10 smooth sbezier with lines title "Requests [ 1000 ] - Concurrency [ 100 ]", \
-     "post/gplot.2000.data" using 10 smooth sbezier with lines title "Requests [ 2000 ] - Concurrency [ 200 ]", \
-     "post/gplot.3000.data" using 10 smooth sbezier with lines title "Requests [ 3000 ] - Concurrency [ 300 ]", \
-     "post/gplot.5000.data" using 10 smooth sbezier with lines title "Requests [ 5000 ] - Concurrency [ 500 ]"
+plot "gplot.1000.data" using 10 smooth sbezier with lines title "Requests [ 1000 ] - Concurrency [ 100 ]", \
+     "gplot.2000.data" using 10 smooth sbezier with lines title "Requests [ 2000 ] - Concurrency [ 200 ]", \
+     "gplot.3000.data" using 10 smooth sbezier with lines title "Requests [ 3000 ] - Concurrency [ 300 ]", \
+     "gplot.5000.data" using 10 smooth sbezier with lines title "Requests [ 5000 ] - Concurrency [ 500 ]"
 
 exit
 ```
 
-###### payload.json
+###### config/payload.json
 
 ```json
 {
@@ -532,7 +546,7 @@ exit
 
 ###### Chart
 
-![apache-benchmark-endpoints-homepage](README/apache-benchmark/post.png)
+![apache-benchmark-endpoints-homepage](.README/apache-benchmark/post.png)
 
 ### Debug / Setup PHPStorm
 
@@ -565,36 +579,36 @@ environment:
 
 To allow PHPStorm index huge projects consider to increase the default assigned memory amount from 2048 MiB up to 8192 MiB.
 
-![phpstorm-memory-settings](README/setup-phpstorm-memory/phpstorm-memory-settings.png)
+![phpstorm-memory-settings](.README/setup-phpstorm-memory/phpstorm-memory-settings.png)
 
 #### Settings > PHP > Debug
 
 Ensure the `Max. simultaneous connections` is set to 1 to avoid trace collisions when debugging.
 
-![phpstorm-debug](README/setup-phpstorm-xdebug/phpstorm-settings-php-debug.png)
+![phpstorm-debug](.README/setup-phpstorm-xdebug/phpstorm-settings-php-debug.png)
 
 #### Settings > PHP > Servers
 
 Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
 
-![phpstorm-settings-php-servers](README/setup-phpstorm-xdebug/phpstorm-settings-php-servers.png)
+![phpstorm-settings-php-servers](.README/setup-phpstorm-xdebug/phpstorm-settings-php-servers.png)
 
 #### Settings > PHP
 
-![phpstorm-settings-php-settings](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings.png)
+![phpstorm-settings-php-settings](.README/setup-phpstorm-xdebug/phpstorm-settings-php-settings.png)
 
-![phpstorm-settings-php-settings-cli-interpreter](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings-cli-interpreter.png)
+![phpstorm-settings-php-settings-cli-interpreter](.README/setup-phpstorm-xdebug/phpstorm-settings-php-settings-cli-interpreter.png)
 
 > [!IMPORTANT]
 >
 > When selecting Docker Compose configuration files, ensure to include:
 >
-> 1. The `docker-compose.yml` file, which contains the default service(s) specification
-> 2. The `docker-compose.override.dev.yml` file, which may contains some override values or customization from default specification.
+> 1. The `docker/app/docker-compose.yml` file, which contains the default service(s) specification
+> 2. The `docker/app/docker-compose.override.dev.yml` file, which may contains some override values or customization from default specification.
 >
 > **The order on here is important!**
 
-![phpstorm-settings-php-settings-cli-interpreter-configuration-files](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings-cli-interpreter-configuration-files.png)
+![phpstorm-settings-php-settings-cli-interpreter-configuration-files](.README/setup-phpstorm-xdebug/phpstorm-settings-php-settings-cli-interpreter-configuration-files.png)
 
 ------
 

@@ -5,8 +5,8 @@ services:
             service: caddy
         container_name: caddy
         build:
-            context: ..
-            dockerfile: docker/Dockerfile
+            context: ../..
+            dockerfile: docker/app/Dockerfile
             target: build-development
         image: dockerized-php-caddy:dev
         environment:
@@ -21,4 +21,4 @@ services:
             - PHP_XDEBUG_LOG=/dev/stdout
             - PHP_XDEBUG_LOG_LEVEL=0
         volumes:
-            - ../src:/var/www/html
+            - ../../src:/var/www/html

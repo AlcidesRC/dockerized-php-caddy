@@ -18,7 +18,7 @@ export $(shell sed 's/=.*//' .env);
 ###
 
 SERVICE_CADDY = caddy
-SERVICE_AB = apache-benchmark
+SERVICE_AB    = ab
 
 #---
 
@@ -33,12 +33,14 @@ HOST_GROUP_NAME := $(shell id --group --name)
 
 #---
 
-DOCKER_COMPOSE         = docker compose --file docker/docker-compose.yml --file docker/docker-compose.override.$(APP_ENV).yml
+DOCKER_COMPOSE_APP     = docker compose --file docker/app/docker-compose.yml --file docker/app/docker-compose.override.$(APP_ENV).yml
+DOCKER_COMPOSE_AB      = docker compose --file docker/ab/docker-compose.yml
 
 DOCKER_BUILD_ARGUMENTS = --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
+DOCKER_ENV_VARIABLES   = HOST_USER_ID=$(HOST_USER_ID) HOST_USER_NAME=$(HOST_USER_NAME) HOST_GROUP_ID=$(HOST_GROUP_ID) HOST_GROUP_NAME=$(HOST_GROUP_NAME)
 
-DOCKER_RUN_AS_ROOT     = $(DOCKER_COMPOSE) run -it --rm $(SERVICE_CADDY)
-DOCKER_RUN_AS_USER     = $(DOCKER_COMPOSE) run -it --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_CADDY)
+DOCKER_RUN_AS_ROOT     = $(DOCKER_COMPOSE_APP) run -it --rm $(SERVICE_CADDY)
+DOCKER_RUN_AS_USER     = $(DOCKER_COMPOSE_APP) run -it --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_CADDY)
 
 #---
 
@@ -73,6 +75,10 @@ endef
 ###
 # MISCELANEOUS
 ###
+
+.PHONY: get-webserver-ip-address
+get-webserver-ip-address:
+	$(eval WEBSERVER_IPADDRESS=$(shell docker inspect --format "{{json .NetworkSettings.Networks.app_default.Gateway}}" $(SERVICE_CADDY) | jq -r))
 
 .PHONY: set-environment
 set-environment:
@@ -129,32 +135,33 @@ help: ensure_gum_is_installed welcome
 
 .PHONY: build
 build:
-	$(call showInfo,"Building Docker [ $(SERVICE_CADDY) ]...")
-	@COMPOSE_BAKE=true $(DOCKER_COMPOSE) build $(DOCKER_BUILD_ARGUMENTS)
+	$(call showInfo,"Building Docker [ $(SERVICE_CADDY) $(SERVICE_AB) ]...")
+	@COMPOSE_BAKE=true $(DOCKER_COMPOSE_APP) build $(DOCKER_BUILD_ARGUMENTS)
+	@COMPOSE_BAKE=true WEBSERVER_IPADDRESS=$(WEBSERVER_IPADDRESS) $(DOCKER_ENV_VARIABLES) $(DOCKER_COMPOSE_AB) build
 	$(call taskDone)
 
 .PHONY: up
 up:
 	$(call showInfo,"Starting service [ $(SERVICE_CADDY) ]...")
-	@$(DOCKER_COMPOSE) up --remove-orphans --detach
+	@$(DOCKER_COMPOSE_APP) up --remove-orphans --detach
 	$(call taskDone)
 
 .PHONY: down
 down:
 	$(call showInfo,"Starting service [ $(SERVICE_CADDY) ]...")
-	@$(DOCKER_COMPOSE) down --remove-orphans
+	@$(DOCKER_COMPOSE_APP) down --remove-orphans
 	$(call taskDone)
 
 .PHONY: restart
 restart:
 	$(call showInfo,"Starting service [ $(SERVICE_CADDY) ]...")
-	@$(DOCKER_COMPOSE) restart
+	@$(DOCKER_COMPOSE_APP) restart
 	$(call taskDone)
 
 .PHONY: logs
 logs:
 	$(call showInfo,"Exposing [ $(SERVICE_CADDY) ] logs...")
-	@$(DOCKER_COMPOSE) logs -f $(SERVICE_CADDY)
+	@$(DOCKER_COMPOSE_APP) logs -f $(SERVICE_CADDY)
 	$(call taskDone)
 
 .PHONY: inspect
@@ -285,17 +292,11 @@ open-website: ## Application: opens the application URL
 # APACHE-BENCHMARK
 ###
 
-.PHONY: get-webserver-ip-address
-get-webserver-ip-address:
-	$(eval WEBSERVER_IPADDRESS=$(shell docker inspect --format "{{json .NetworkSettings.Networks.docker_default.IPAddress}}" $(SERVICE_CADDY) | jq -r))
-
 .PHONY: test-stress
 test-stress: get-webserver-ip-address ## Apache Benchmark stress test
 	$(call showInfo,"Apache Benchmark on [ $(WEBSERVER_IPADDRESS) ] - Endpoint [ / ]...")
-	@WEBSERVER_IPADDRESS=$(WEBSERVER_IPADDRESS) HOST_USER_ID=$(HOST_USER_ID) HOST_USER_NAME=$(HOST_USER_NAME) HOST_GROUP_ID=$(HOST_GROUP_ID) HOST_GROUP_NAME=$(HOST_GROUP_NAME) docker compose -f docker/docker-compose.apache-benchmark.yml run --rm -it --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_AB) sh ./homepage/runner.sh
-	@echo ""
-	@gum spin --spinner minidot --title "Taking a breath..." -- sleep 5
-	@echo ""
-	$(call showInfo,"Apache Benchmark on [ $(WEBSERVER_IPADDRESS) ] - Endpoint [ / ]...")
-	@WEBSERVER_IPADDRESS=$(WEBSERVER_IPADDRESS) HOST_USER_ID=$(HOST_USER_ID) HOST_USER_NAME=$(HOST_USER_NAME) HOST_GROUP_ID=$(HOST_GROUP_ID) HOST_GROUP_NAME=$(HOST_GROUP_NAME) docker compose -f docker/docker-compose.apache-benchmark.yml run --rm -it --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_AB) sh ./post/runner.sh
+	@WEBSERVER_IPADDRESS=$(WEBSERVER_IPADDRESS) $(DOCKER_ENV_VARIABLES) $(DOCKER_COMPOSE_AB) run --rm -it --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_AB) sh -c "cd homepage; sh runner.sh"
+	@echo "" && gum spin --spinner minidot --title "Taking a breath..." -- sleep 5 && echo ""
+	$(call showInfo,"Apache Benchmark on [ $(WEBSERVER_IPADDRESS) ] - Endpoint [ /post ]...")
+	@WEBSERVER_IPADDRESS=$(WEBSERVER_IPADDRESS) $(DOCKER_ENV_VARIABLES) $(DOCKER_COMPOSE_AB) run --rm -it --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_AB) sh -c "cd post; sh runner.sh"
 	$(call taskDone)
