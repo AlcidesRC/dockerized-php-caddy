@@ -223,13 +223,13 @@ composer-require-dev:
 	$(call taskDone)
 
 ###
-# DEBUG
+# XDEBUG
 ###
 
 .PHONY: get-xdebug-client-host
-get-xdebug-client-host:
+get-xdebug-client-host: get-webserver-ip-address
 	$(call showInfo,"Inspecting [ $(SERVICE_CADDY) ] networks settings...")
-	@docker inspect --format "{{json .NetworkSettings.Networks.docker_default.Gateway}}" $(SERVICE_CADDY) | jq -r
+	@echo $(WEBSERVER_IPADDRESS)
 	$(call taskDone)
 
 ###
