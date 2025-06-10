@@ -35,19 +35,18 @@ To use this repository you need:
 
 ## Built with
 
-| Type           | Component                                                    | Description                                                  |
-| -------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Infrastructure | [Docker](https://www.docker.com/)                            | Containerization platform                                    |
-| Service        | [Caddy Server](https://caddyserver.com/)                     | Open source web server with automatic HTTPS written in Go    |
-| Service        | [Caddy Supervisor](https://github.com/baldinof/caddy-supervisor) | A module to run and supervise background processes from Caddy |
-| Service        | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php)     | PHP with FastCGI Process Manager                             |
-| Service        | [Apache Benchmark](https://httpd.apache.org/docs/2.4/programs/ab.html) | A tool for benchmarking HTTP servers                         |
-| Miscelaneous   | [Bash](https://www.gnu.org/software/bash/)                   | Allows to create an interactive shell within containerized service |
-| Miscelaneous   | [Make](https://www.gnu.org/software/make/)                   | Allows to execute commands defined on a _Makefile_           |
-| Miscelaneous   | [jq](https://jqlang.github.io/jq/download/)                  | Allows to beautify the Docker inspections in JSON format     |
+| Type           | Component                                                              | Description                                                        |
+|----------------|------------------------------------------------------------------------|--------------------------------------------------------------------|
+| Infrastructure | [Docker](https://www.docker.com/)                                      | Containerization platform                                          |
+| Service        | [Caddy Server](https://caddyserver.com/)                               | Open source web server with automatic HTTPS written in Go          |
+| Service        | [Caddy Supervisor](https://github.com/baldinof/caddy-supervisor)       | A module to run and supervise background processes from Caddy      |
+| Service        | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php)               | PHP with FastCGI Process Manager                                   |
+| Service        | [Apache Benchmark](https://httpd.apache.org/docs/2.4/programs/ab.html) | A tool for benchmarking HTTP servers                               |
+| Miscelaneous   | [Bash](https://www.gnu.org/software/bash/)                             | Allows to create an interactive shell within containerized service |
+| Miscelaneous   | [Make](https://www.gnu.org/software/make/)                             | Allows to execute commands defined on a _Makefile_                 |
+| Miscelaneous   | [jq](https://jqlang.github.io/jq/download/)                            | Allows to beautify the Docker inspections in JSON format           |
 
 ------
-
 
 ## Getting Started
 
