@@ -22,7 +22,7 @@ SERVICE_AB    = ab
 
 #---
 
-WEBSITE_URL = https://localhost
+WEBSITE_URL = https://app\.localhost
 
 #---
 

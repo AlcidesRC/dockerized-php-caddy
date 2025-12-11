@@ -8,7 +8,7 @@
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.4.7-fpm-alpine3.21** using **caddy:2.10.0-builder-alpine** and **Apache Benchmark**.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.5-fpm-alpine** using **caddy:2.11-builder-alpine** and **Apache Benchmark**.
 
 ### Highlights
 
@@ -201,7 +201,7 @@ A *Makefile* is provided with following commands:
 🔹 HOST USER .....  (1000) alcidesramos 
 🔹 HOST GROUP ....  (1000) alcidesramos 
 🔹 ENVIRONMENT ...  dev 
-🔹 DOMAIN URL ....  https://localhost 
+🔹 DOMAIN URL ....  https://app.localhost 
 🔹 SERVICE(S) ....  caddy 
 
 Choose a command...         
@@ -235,7 +235,7 @@ This project uses Caddy as main web server which <u>provides HTTPS by default</u
 
 ##### Default Domain
 
-The default website domain is https://localhost
+The default website domain is https://app.localhost
 
 > [!TIP]
 >
@@ -284,7 +284,7 @@ $ make set-environment
 ║                                                                                ║
 ╚════════════════════════════════════════════════════════════════════════════════╝
 🔹 ENVIRONMENT ... dev                                                         
-🔹 DOMAIN URL .... https://localhost                                            
+🔹 DOMAIN URL .... https://app.localhost                                            
 🔹 SERVICE(S) .... caddy                                                   
 🔹 USER .......... (1000) alcidesramos                                          
 🔹 GROUP ......... (1000) alcidesramos                                          
@@ -357,7 +357,7 @@ $ make set-environment
 ║                                                                                ║
 ╚════════════════════════════════════════════════════════════════════════════════╝
 🔹 ENVIRONMENT ... dev                                                         
-🔹 DOMAIN URL .... https://localhost                                            
+🔹 DOMAIN URL .... https://app.localhost                                            
 🔹 SERVICE(S) .... caddy                                                   
 🔹 USER .......... (1000) alcidesramos                                          
 🔹 GROUP ......... (1000) alcidesramos                                          
