@@ -16,9 +16,12 @@
 import snippets/*
 
 {$CADDY_HOSTNAME} {
+    import remove_www
+    import unauthorized
+    import not_found
     import common
-    import ssl
-    import domain
+    import cors_preflight
+    import php_fastcgi
 
     root * /var/www/html/public
 }
