@@ -7,9 +7,10 @@ services:
         container_name: caddy
         restart: unless-stopped
         tty: true
+        hostname: app.localhost
         environment:
             - CADDY_TLS=internal
-            - CADDY_HOSTNAME=https://localhost
+            - CADDY_HOSTNAME=https://app.localhost
             - CADDY_PHPFPM_GATEWAYS=:9000
         volumes:
             - caddy_data:/data
@@ -21,7 +22,7 @@ services:
             - 443:443
             - 443:443/udp
         healthcheck:
-            test: ["CMD", "wget", "--no-check-certificate", "--spider", "https://localhost/healthcheck"]
+            test: ["CMD", "wget", "--no-check-certificate", "--spider", "https://app.localhost/healthcheck"]
             interval: 30s
             timeout: 1s
             retries: 3

@@ -4,13 +4,13 @@
 # STAGE: BASE-IMAGE
 #----------------------------------------------------------
 
-FROM php:8.4.7-fpm-alpine3.21 AS base-image
+FROM php:8.5-fpm-alpine AS base-image
 
 #----------------------------------------------------------
 # STAGE: CADDY-BUILDER
 #----------------------------------------------------------
 
-FROM caddy:2.10.0-builder-alpine AS caddy-builder
+FROM caddy:2.11-builder-alpine AS caddy-builder
 
 RUN xcaddy build \
     --with github.com/baldinof/caddy-supervisor
@@ -87,7 +87,7 @@ RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html \
     && rm -Rf /var/www/html/*
 
 # Add __ONLY__ compiled extensions & their config files
-COPY --from=extensions-builder-dev /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20240924/
+COPY --from=extensions-builder-dev /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20250925/
 COPY --from=extensions-builder-dev /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Add Composer from public Docker image
@@ -157,7 +157,7 @@ FROM common AS build-production
 ENV ENV=PRODUCTION
 
 # Add __ONLY__ compiled extensions & their config files
-COPY --from=extensions-builder-common /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20240924/
+COPY --from=extensions-builder-common /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20250925/
 COPY --from=extensions-builder-common /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Add the optimized for production application
